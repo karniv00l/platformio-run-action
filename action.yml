@@ -1,0 +1,78 @@
+name: PlatformIO Run
+description: Run project targets over environments declared in platformio.ini
+author: Piotr Rogowski <piotr.rogowski0@gmail.com>
+branding:
+  icon: cpu
+  color: orange
+inputs:
+  environments:
+    description: Process specified environments (comma separated).
+    required: false
+  targets:
+    description: Process specified targets (comma separated).
+    required: false
+  project-dir:
+    description: Specify the path to project directory. By default, project-dir is equal to current working directory (CWD).
+    required: false
+  project-conf:
+    description: Process project with a custom platformio.ini
+    required: false
+  jobs:
+    description: Control a number of parallel build jobs. Default is a number of CPUs in a system.
+    required: false
+  silent:
+    description: Suppress progress reporting.
+    required: false
+  verbose:
+    description: Shows detailed information when processing environments.
+    required: false
+  disable-auto-clean:
+    description: Disable auto-clean of build_dir when platformio.ini or src_dir (project structure) have been modified.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Cache PlatformIO
+      uses: actions/cache@v2
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install PlatformIO
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade platformio
+    - name: Run PlatformIO
+      shell: bash
+      run: |
+        environments=${{ inputs.environments }}
+        targets=${{ inputs.targets }}
+        project_dir=${{ inputs.project-dir }}
+        project_conf=${{ inputs.project-conf }}
+        jobs=${{ inputs.jobs }}
+        silent=${{ inputs.silent }}
+        verbose=${{ inputs.verbose }}
+        disable_auto_clean=${{ inputs.disable-auto-clean }}
+
+        args=()
+
+        if [ -n "$environments" ]; then args+=("--environment ${environments//,/ -e }"); fi
+        if [ -n "$targets" ]; then args+=("--target ${targets//,/ -t }"); fi
+        if [ -n "$project_dir" ]; then args+=("--project-dir $project_dir"); fi
+        if [ -n "$project_conf" ]; then args+=("--project-conf $project_conf"); fi
+        if [ -n "$jobs" ]; then args+=("--jobs $jobs"); fi
+        if [ -n "$silent" ]; then args+=("--silent"); fi
+        if [ -n "$verbose" ]; then args+=("--verbose"); fi
+        if [ -n "$disable_auto_clean" ]; then args+=("--disable-auto-clean"); fi
+
+        echo $args | xargs pio run
