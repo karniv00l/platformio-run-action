@@ -1,5 +1,5 @@
 name: PlatformIO Run
-description: Run project targets over environments declared in platformio.ini
+description: Run PlatformIO project targets over environments declared in platformio.ini
 author: Piotr Rogowski <piotr.rogowski0@gmail.com>
 branding:
   icon: cpu
