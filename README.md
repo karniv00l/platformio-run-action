@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: PlatformIO Run
-        uses: karniv00l/platformio-run-action@0.1.0
+        uses: karniv00l/platformio-run-action@v1
         with:
           environments: "teensy35,teensy36,teensy41"
           targets: "teensy35,teensy36,teensy41"
