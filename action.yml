@@ -77,4 +77,4 @@ runs:
         if [ -n "$verbose" ]; then args+=("--verbose"); fi
         if [ -n "$disable_auto_clean" ]; then args+=("--disable-auto-clean"); fi
 
-        echo $args | xargs pio run
+        echo ${args[*]} | xargs pio run
